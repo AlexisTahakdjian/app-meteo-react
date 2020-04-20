@@ -27,7 +27,6 @@ export default class Search extends React.Component {
         e.preventDefault();
         axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city}&units=metric&lang=fr&appid=634562b88bf8f20cb2bef0366da05683`)
             .then(
-
                 (response) => {
                     console.log(response.data.main)
                     console.log(response.data.main)

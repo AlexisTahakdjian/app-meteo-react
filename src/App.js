@@ -19,6 +19,8 @@ export default class App extends React.Component {
             main: null,
             weather: null,
             fetching: false,
+            fetched: false,
+            error: null,
         }
         this.setCity = this.setCity.bind(this);
         this.fetchWeather = this.fetchWeather.bind(this);
@@ -35,17 +37,31 @@ export default class App extends React.Component {
         e.preventDefault()
         axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city}&units=metric&lang=fr&appid=634562b88bf8f20cb2bef0366da05683`)
             .then((response) => {
-                    this.setState({
-                            main: response.data.main,
-                            weather: response.data.weather,
-                            fetching: true
-                        }
-                    )
+                    console.log(response.data.cod);
+                    response ?
+                        this.setState({
+                                main: response.data.main,
+                                weather: response.data.weather,
+                                fetched: true,
+                            }
+                        )
+                        :
+                        this.setState({
+                            fetching: true,
+                        })
+
                 }
-            )
+
+            ).catch(error => {
+            console.log(error.response.data.errors);
+            this.setState({
+                fetched: true,
+                error: error
+            });
+        })
     }
 
-    icon(){
+    icon() {
         const type = this.state.weather[0].icon;
         let image;
         switch (type) {
@@ -53,33 +69,33 @@ export default class App extends React.Component {
                 image = require('./weather/01d.png')
                 break;
             case '02d':
-                 image = require('./weather/02d.png')
+                image = require('./weather/02d.png')
                 break;
             case '03d':
-                 image = require('./weather/03d.png')
+                image = require('./weather/noun_Cloud_2891322.svg')
                 break;
             case '04d':
-                 image = require('./weather/04d.png')
+                image = require('./weather/04d.png')
                 break;
             case '09d':
-                 image = require('./weather/09d.png')
+                image = require('./weather/09d.png')
                 break;
             case '10d':
-                 image = require('./weather/10d.png')
+                image = require('./weather/10d.png')
                 break;
             case '11d':
-                 image = require('./weather/11d.png')
+                image = require('./weather/11d.png')
                 break;
             case '13d':
-                 image = require('./weather/13d.png')
+                image = require('./weather/13d.png')
                 break;
             case '50d':
-                 image = require('./weather/50d.png')
+                image = require('./weather/50d.png')
                 break;
             default:
                 image = require('./weather/01n.png')
         }
-        return <img style={{ width:120 }} src={image} alt={this.state.weather[0].main}/>
+        return <img style={{width: 120}} src={image} alt={this.state.weather[0].main}/>
     }
 
 
@@ -96,24 +112,37 @@ export default class App extends React.Component {
                                 variant="contained" type="submit">Validez</Button>
                     </form>
 
-                    {this.state.fetching === false ?
+                    {this.state.fetching === true ?
                         <Box mt={3} display="flex" justifyContent="center">
                             <CircularProgress/>
                         </Box>
                         :
-                        <Box mt={3} display="flex" justifyContent="space-around" alignItems="center">
-                            <Box display='flex' flexDirection="column" justifyContent="center" alignItems="center">
-                                {this.icon()}
-                                <Typography>{this.state.weather[0].description}</Typography>
+                        this.state.fetched === true ?
+                            <Box mt={3} display="flex" justifyContent="space-around" alignItems="center">
+                                <Box display='flex' flexDirection="column" justifyContent="center"
+                                     alignItems="center">
+                                    {this.icon()}
+                                    <Typography>{this.state.weather[0].description}</Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="h4">{Math.round(this.state.main.temp)}°C</Typography>
+                                    <Typography>Min : {Math.round(this.state.main.temp_min)}°C</Typography>
+                                    <Typography>Max : {Math.round(this.state.main.temp_max)}°C</Typography>
+                                    <Typography>Ressentie : {Math.round(this.state.main.feels_like)}°C</Typography>
+                                </Box>
                             </Box>
-                            <Box>
-                                <Typography variant="h4">{Math.round(this.state.main.temp)}°C</Typography>
-                                <Typography>Min : {Math.round(this.state.main.temp_min)}°C</Typography>
-                                <Typography>Max : {Math.round(this.state.main.temp_max)}°C</Typography>
-                                <Typography>Ressentie : {Math.round(this.state.main.feels_like)}°C</Typography>
+                            :
+                            this.state.error === true && this.state.fetched === true ?
+                                <Box mt={3} display="flex" justifyContent="center">
+                                    <Typography>Erreur : {this.state.error.message}</Typography>
+                                    <Typography>Erreur : {this.state.error}</Typography>
+                                </Box>
+                            :
+                            <Box mt={3} display="flex" justifyContent="center">
+                                {/*<CircularProgress/>*/}
                             </Box>
-                        </Box>}
 
+                    }
 
                 </Container>
             </React.Fragment>
